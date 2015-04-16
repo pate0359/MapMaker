@@ -1,0 +1,29 @@
+@charset "utf-8";
+/*
+///////////////////////////////////////////////////////////////////
+// File: style.css
+// Author: Sebatian Lenczewski
+// Copyright: 2013, Sebastian Lenczewski, Algonquin College
+// Desc: This file contains CSS styling to be added to the html
+///////////////////////////////////////////////////////////////////
+*/
+
+body{
+	background:#333;
+	padding:0px;
+	margin:0px;
+}
+
+img{
+	border:#CCCCCC 2px solid;
+	padding:0px;
+	margin:0px;
+}
+
+input{
+	width:240px;
+	height:60px;
+	font-size:36px;
+	font-family:Tahoma, Geneva, sans-serif;
+	margin:16px 0px 0px 50px;
+}
