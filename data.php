@@ -127,23 +127,23 @@
 			}
 	
 		// Run a select query to return the whole table
-		$result = $db_file->query("SELECT * FROM ".$tableName);
-		echo 'SELECT * FROM '.$tableName;
+		$result = $db_file->query('SELECT * FROM '.$tableName);
+		$rows = $result->fetchAll();
+		$count = count($rows);
 		
-		$count = $result->rowCount();
-		echo $count;
-
 		if($count != 0)
 		{
 			// If the results are not empty, set the given array position to the value 'tile_id'.
 			// Remember that each row in the table has the 'position_row' and 'position_col' 
 			// stored telling you what array position to fill.
-			
-			foreach ($result as $value) 
+						
+			foreach ($rows as $value) 
 			{
+				
 				$pos_row= $value['position_row'];
 				$pos_col = $value['position_col'];
 				$tile_id = $value['tile_id'];
+				
 				$map[$pos_row][$pos_col]=$tile_id;
 			}
 			
