@@ -126,7 +126,7 @@
 				echo $e->getMessage();
     	}
 		
-		echo 'SELECT * FROM ';
+//		echo 'SELECT * FROM ';
 			// If the db file exists, open a link to it
 			
 			// Run a select query to return the whole table
@@ -213,18 +213,49 @@
 		$map = array();
 		
 		// Connect to the database by creating a new PDO object
+		$db_host = "localhost";
+		$db_name = "final";
+		$db_user = "root";
+		$db_password = "root";
+	
+		try{
+				$pdo_link = new PDO("mysql:host=$db_host;dbname=$db_name",$db_user,$db_password);
+				$pdo_link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+		}catch(PDOException $e)
+		{
+				echo $e->getMessage();
+    	}
 		
 		// Use a select query to get all the records from the specified table
+		$result = $pdo_link->query('SELECT * FROM '.$tableName);
 		
+		
+		$count = $result->rowCount();
+
+		if($count != 0)
+		{
 		// If the results are not empty, set the given array position to the value 'tile_id'.
 		// Remember that each row in the table has the 'position_row' and 'position_col' 
 		// stored telling you what array position to fill.
-		
-		// Else if the results are empty, then set the $map array equal to the return
-		// value of the function call makeMapArray(10,10,0)
+			foreach ($result as $value) {
+				
+				$pos_row= $value['position_row'];
+				 $pos_col = $value['position_col'];
+				 $tile_id = $value['tile_id'];
+				
+				$map[$pos_row][$pos_col]=$tile_id;
+			}
+		}else
+		{
+			// Else if the results are empty, then set the $map array equal to the return
+			// value of the function call makeMapArray(10,10,0)
+			$map = makeMapArray(10,10,0);
+		}
 		
 		// Close the PDO link to the MySQL database
-		
+		$pdo_link = NULL;
+
 		// Return the $map array
 		return $map;
 	}
