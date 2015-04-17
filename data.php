@@ -261,7 +261,6 @@
 	}
 	
 	
-	
 	// Create a function to export the given array $tileMapArray to an XML file.  
 	// The root node of this document should be named with the value in $tableName.
 	// It should have 10 'row' nodes, each with 10 'col' nodes in them. 
@@ -271,21 +270,41 @@
 	{
 		//5.
 		// Create a string variable formated with the header of a valid XML document.
+		$xmlString = "<?xml version='1.0' standalone='yes'?>\n";
 		
 		// concatinate the root node named with the $tableName value
-		
+		$xmlString .='<'.$tableName.'>';
+				
 		// Loop through the $tileMapArray, each row of the array being a set of 10 tiles,
 		// and and each value of a given row being a specific tile.
+			for($y=0;$y<count($tileMapArray);$y++)
+			{
+				// Loop through the $results, each $row being a record from our query results
+				$xmlString .= "<row>\n";
+				
+				$col=$tileMapArray[$y];
+
+				// Loop through each record to concatinate each value inside the <col> node
+				for($x=0;$x<count($col);$x++)
+				{
+					// Loop through each record to print out each $key as the name of an XML tag
+					$xmlString .= "<col>\n";
+				  	$xmlString .=   "<position_row>"   . $y .   "</position_row>\n";
+					$xmlString .=   "<position_col>"   . $x .   "</position_col>\n";
+					$xmlString .=   "<tile_id>"   . $tileMapArray[$y][$x] .   "</tile_id>\n";
+					$xmlString .= "</col>\n";
+				}
+				
+				$xmlString .= "</row>\n";
+			}	
 		
-			// Loop through each record to concatinate each value inside the <col> node
-			
 		// Close the root node to end the XML structure
-		
+		$xmlString .='</'.$tableName.'>';
+					
 		// Use the string variable to generate a SimpleXMLElement
+		$tileMapXml = new SimpleXMLElement($xmlString);
 		
 		// Save the SimpleXMLElement to a file with the value of $tableName as the name
-	}
-	
-	
+		$tileMapXml->asXML('tileMapXml.xml');
+	}	
 ?>
-
