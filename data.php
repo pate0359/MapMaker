@@ -110,6 +110,23 @@
 		//2.
 		// Check if the file 'final.sqlite3' exists on the server
 		
+		// MYSQL CONNECTION
+	//Connect to the database by creating a new PDO object
+	$db_host = "localhost";
+	$db_name = "final";
+	$db_user = "root";
+	$db_password = "root";
+	
+		try{
+				$pdo_link = new PDO("mysql:host=$db_host;dbname=$db_name",$db_user,$db_password);
+				$pdo_link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+		}catch(PDOException $e)
+		{
+				echo $e->getMessage();
+    	}
+		
+		echo 'SELECT * FROM ';
 			// If the db file exists, open a link to it
 			
 			// Run a select query to return the whole table
@@ -141,18 +158,48 @@
 	{
 		//3.
 		// Connect to the database by creating a new PDO object
+		$db_host = "localhost";
+		$db_name = "final";
+		$db_user = "root";
+		$db_password = "root";
+	
+		try{
+				$pdo_link = new PDO("mysql:host=$db_host;dbname=$db_name",$db_user,$db_password);
+				$pdo_link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+		}catch(PDOException $e)
+		{
+				echo $e->getMessage();
+    	}
 		
 		// Create a table IF NOT EXISTS for the given $tableName
 		
+		$pdo_link->query('CREATE TABLE IF NOT EXISTS '.$tableName.'(position_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,position_row INT(6) NOT NULL,position_col INT(6) NOT NULL,tile_id INT(6) NOT NULL)');
+	
+		
 		// Run a truncate query on the table to remove any data
+		$pdo_link->query('TRUNCATE '.$tableName);
 		
 		// Loop through the the $tileMapArray array to generate a single query to 
-		// insert all the records from the $tileMapArray into the MySQL table.
+		$qry='INSERT INTO '.$tableName.' SELECT NULL as "position_id",0 AS "position_row", 0 AS "position_col",'.$tileMapArray[0][0].' AS "tile_id"';
 		
+		for($y=0;$y<count($tileMapArray);$y++)
+		{
+			$col=$tileMapArray[$y];
+			
+			for($x=0;$x<count($col);$x++)
+			{
+				// Set the value at this position to $tile_id				
+				$qry.=' UNION SELECT NULL,'.$y.', '.$x.', '.$tileMapArray[$y][$x].'';
+			}
+		}
+
+		// insert all the records from the $tileMapArray into the MySQL table.
 		// Exicute the insert query on the MySQL table
+		$pdo_link->query($qry); 		
 		
 		// Close the PDO link to the database
-		
+		$pdo_link = NULL;
 	}
 	
 	
