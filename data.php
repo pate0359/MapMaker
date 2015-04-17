@@ -33,25 +33,67 @@
 	// table with the name as $tableName
 	function saveMapArray($tableName, $tileMapArray)
 	{
+//		foreach ($tileMapArray as $value) {
+//			foreach($value as $item)
+//			{echo "$item ";}
+//			
+//			echo "<br/>\n";
+//		}
+				
 		//1.
 		// Open a PDO connection to the SQLite file called final.sqlite3
+		$db_file = new PDO('sqlite:final.sqlite3');
+		
 		
 		// Check if the table exists by doing a select on the SQLite 
 		// table called 'sqlite_master' to check if the table name 
 		// exists.  Remember to fetch the data out of the results
 		
-		// If the results are 0 the table does not exist, and you must 
-		// create the SQLite table.
+		//$result = $db_file->query("SELECT COUNT(*) FROM sqlite_master WHERE name=".$tableName);
+		$result = $db_file->query('SELECT COUNT(*) AS total FROM sqlite_master WHERE type=\'table\' AND name=\''.$tableName.'\'');
 		
-		// Else if it does exist you must empty the SQLite table. (do not drop table)
+		//echo 'SELECT count(*) FROM sqlite_master WHERE type=\'table\' AND name=\''.$tableName.'\'';		
+		$row = $result->fetch(PDO::FETCH_NUM);				
+		if($row[0] == 0)
+		{
+			// If the results are 0 the table does not exist, and you must 
+		// create the SQLite table.
+			$db_file->exec('CREATE TABLE IF NOT EXISTS '.$tableName.'(position_id INTEGER PRIMARY KEY AUTOINCREMENT,position_row INT NOT NULL,position_col INT NOT NULL,tile_id INT NOT NULL)');
+   
+		}else{
+			
+			// Else if it does exist you must empty the SQLite table. (do not drop table)
+			//Empty the table if there was data in it already
+			$db_file->exec('DELETE FROM '.$tableName);
+			$db_file->exec('VACUUM');
+
+			//Reset Auto increment value
+			$db_file->query('UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =\''.$tableName.'\'');
+		}
+		
 		
 		// Generate one single SQLite query to insert all the $tileMapArray values to SQLite table 
 		// by looping through the array called $tileMapArray. (Do some research on this.  
 		// You need to use a SELECT and UNION to insert many records at once in SQLite)
+		// Prepare INSERT UNION query string
+		$qry='INSERT INTO '.$tableName.' SELECT NULL as "position_id",0 AS "position_row", 0 AS "position_col",'.$tileMapArray[0][0].' AS "tile_id"';
+		
+		for($y=0;$y<count($tileMapArray);$y++)
+		{
+			$col=$tileMapArray[$y];
+			
+			for($x=0;$x<count($col);$x++)
+			{
+				// Set the value at this position to $tile_id				
+				$qry.=' UNION SELECT NULL,'.$y.', '.$x.', '.$tileMapArray[$y][$x].'';
+			}
+		}	
 		
 		// Exicute the query to insert the array data
+		$db_file->exec($qry); 
 		
 		// Close connection to PDO object.
+		$db_file = null;
 		
 	}
 	
