@@ -109,49 +109,59 @@
 		
 		//2.
 		// Check if the file 'final.sqlite3' exists on the server
+		if (file_exists('final.sqlite3')) {
+			//echo "The file exists";
+						
+		} else {
+			echo "The file does not exist";
+		}
 		
-		// MYSQL CONNECTION
-	//Connect to the database by creating a new PDO object
-	$db_host = "localhost";
-	$db_name = "final";
-	$db_user = "root";
-	$db_password = "root";
+		// Open a PDO connection to the SQLite file called final.sqlite3
+		try {
+			  // connect to SQLite database
+			  $db_file = new PDO("sqlite:final.sqlite3");
+			  $db_file->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			}
+		catch(PDOException $e) {
+				  echo $e->getMessage();
+			}
 	
-		try{
-				$pdo_link = new PDO("mysql:host=$db_host;dbname=$db_name",$db_user,$db_password);
-				$pdo_link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			
-		}catch(PDOException $e)
-		{
-				echo $e->getMessage();
-    	}
+		// Run a select query to return the whole table
+		$result = $db_file->query("SELECT * FROM ".$tableName);
+		echo 'SELECT * FROM '.$tableName;
 		
-//		echo 'SELECT * FROM ';
-			// If the db file exists, open a link to it
-			
-			// Run a select query to return the whole table
-			
+		$count = $result->rowCount();
+		echo $count;
+
+		if($count != 0)
+		{
 			// If the results are not empty, set the given array position to the value 'tile_id'.
 			// Remember that each row in the table has the 'position_row' and 'position_col' 
 			// stored telling you what array position to fill.
 			
+			foreach ($result as $value) 
+			{
+				$pos_row= $value['position_row'];
+				$pos_col = $value['position_col'];
+				$tile_id = $value['tile_id'];
+				$map[$pos_row][$pos_col]=$tile_id;
+			}
+			
+		}else
+		{
 			// Else, if the reults are empty, set the $map array equal to the return 
 			// of the function makeMapArray(10,10,0)
+			$map = makeMapArray(10,10,0);
+		}
 			
-			// Close link to database
+		// Close link to database
+		$db_file= NULL;
 
-
-		// Else, if the SQLite file does not exist, set the $map array equal to the return
-		// of the function makeMapArray(10,10,0) 
-
-		
 		// Return the $map array
 		return $map;
 		
 	}
-	
-	
-	
+		
 	// Create a function that takes map array data and inserts it into a 
 	// given MySQL table in a database called final
 	function uploadMapArray($tableName, $tileMapArray)
